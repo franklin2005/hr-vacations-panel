@@ -42,4 +42,17 @@ class VacationRequest extends Model
 
         return $start->diffInDays($end) + 1; 
     }
+    protected static function booted()
+    {
+        static::saving(function (VacationRequest $request) {
+            if ($request->start_date && $request->end_date) {
+                $start = Carbon::parse($request->start_date);
+                $end   = Carbon::parse($request->end_date);
+
+                $request->requested_days = $start->diffInDays($end) + 1; 
+                $request->year = $start->year;
+            }
+        });
+    }
 }
+

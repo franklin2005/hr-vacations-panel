@@ -30,4 +30,17 @@ class Employee extends Model
     {
         return $this->hasMany(VacationRequest::class);
     }
+    public function remainingVacationDays(int $year, int $annualAllowance = 30, ?int $excludeRequestId = null): int
+    {
+        $query = $this->vacationRequests()
+            ->whereIn('status', ['pending', 'approved'])
+            ->where('year', $year);
+
+        if ($excludeRequestId) {
+        $query->whereKeyNot($excludeRequestId);
+        }
+
+        $used = (int) $query->sum('requested_days');
+        return max(0, $annualAllowance - $used);
+    }
 }

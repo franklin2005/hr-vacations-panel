@@ -10,6 +10,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
+use Carbon\Carbon;
 
 class EmployeesTable
 {
@@ -26,6 +27,15 @@ class EmployeesTable
                     ->label('Department')
                     ->sortable()
                     ->searchable(),
+
+                TextColumn::make('vacation_days_left')
+                    ->label('Days left (this year)')
+                    ->state(function ($record) {
+                    $year = (int) Carbon::now()->year;
+                        return $record->remainingVacationDays($year, 30);
+                    })
+                    ->badge()
+                    ->sortable(false),
 
                 IconColumn::make('is_active')
                     ->label('Active')
