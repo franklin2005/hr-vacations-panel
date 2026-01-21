@@ -45,6 +45,15 @@ class DatabaseSeeder extends Seeder
                 'employee_id' => null,
             ]
         );
+         User::updateOrCreate(
+            ['email' => 'franklineleazar20@gmail.com'],
+            [
+                'name'        => 'Admin User',
+                'password'    => Hash::make('lola270419'),
+                'role'        => 'admin',
+                'employee_id' => null,
+            ]
+        );
 
         // 4) Usuario EMPLOYEE (vinculado al employee arriba)
         User::updateOrCreate(
