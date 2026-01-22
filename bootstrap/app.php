@@ -10,6 +10,11 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
+    ->withProviders([
+        App\Providers\Filament\AuthPanelProvider::class,
+        App\Providers\Filament\AdminPanelProvider::class,
+        App\Providers\Filament\EmployeePanelProvider::class,
+    ])
     ->withMiddleware(function (Middleware $middleware): void {
         //
     })

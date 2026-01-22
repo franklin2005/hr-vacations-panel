@@ -1,9 +1,25 @@
 <?php
 
-use App\Http\Controllers\AuthController;
+use Filament\Facades\Filament;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', [AuthController::class, 'showLogin'])->name('login');
-Route::get('/login', [AuthController::class, 'showLogin']);
-Route::post('/login', [AuthController::class, 'login'])->name('login.perform');
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::get('/', function () {
+    if (Auth::check()) {
+        $user = Auth::user();
+
+        if ($user->role === 'admin') {
+            return redirect()->intended('/admin');
+        }
+
+        if ($user->role === 'employee' && $user->employee_id) {
+            return redirect()->intended('/employee');
+        }
+
+        Auth::logout();
+    }
+
+    return redirect()->away(Filament::getPanel('auth')?->getLoginUrl() ?? '/auth/login');
+});
+
+Route::get('/login', fn () => redirect()->to('/auth/login'));
