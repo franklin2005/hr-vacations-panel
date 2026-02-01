@@ -1,59 +1,140 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# HR Vacations – Laravel 12 + Filament 5 (Admin & Employee Panels)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## English
 
-## About Laravel
+### Overview
+- Laravel 12 app with two Filament 5 panels:
+  - **Admin** (`/admin`): manage departments, employees, and vacation requests.
+  - **Employee** (`/employee`): employees manage their own vacation requests via a scoped Filament resource.
+- Unified login at `/auth/login` (also reachable via `/login`); role-based redirect:
+  - `role=admin` → `/admin`
+  - `role=employee` with `employee_id` → `/employee`
+- Custom error pages (403, 404, 419, 500) styled to match the app.
+- Vacation requests: start/end dates, requested days, status (pending/approved/rejected), reviewer, remaining-days validation.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### Requirements
+- PHP 8.2+
+- Composer
+- Node.js & npm (for asset build)
+- Database (MySQL/PostgreSQL/SQLite; configure in `.env`)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Setup
+```bash
+composer install
+cp .env.example .env   # then set DB credentials, APP_URL, etc.
+php artisan key:generate
+php artisan migrate
+npm install
+npm run build          # or npm run dev
+```
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Running
+```bash
+php artisan serve
+# App available at http://127.0.0.1:8000
+# Login at /auth/login (redirects based on role)
+```
 
-## Learning Laravel
+### Panel Access
+- **Admin panel**: `/admin`
+- **Employee panel**: `/employee`
+- Login once at `/auth/login`; Filament UI is reused. Unauthorized panel access still respects `User::canAccessPanel`.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### Models & Features
+- `User`: fields `name`, `email`, `password (hashed)`, `role`, `employee_id`; panel access controlled in `canAccessPanel`.
+- `Employee`: `full_name`, `email`, `department_id`, `hire_date`, `is_active`; auto-linked user creation/updating with passwords managed via the admin employee form.
+- `VacationRequest`: `employee_id`, `start_date`, `end_date`, `status`, `reason`, `reviewed_by`, `reviewed_at`, `requested_days`, `year`.
+- Remaining vacation days logic in `Employee::remainingVacationDays(year, allowance=30, excludeRequestId)` used in forms and validation.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Vacation Request UX (Employee panel)
+- Employees see only their records (query scoped).
+- Create/edit allowed only when status is **pending**; edit/delete/cancel actions hidden otherwise.
+- Live placeholders show remaining days and requested days.
+- Validations: end date ≥ start date; requested days ≤ remaining allowance (pending + approved).
 
-## Laravel Sponsors
+### Error Pages
+- Custom 403/404/419/500 views under `resources/views/errors`, with button back to `/auth/login` (via `/` redirect).
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### Deployment Notes
+- Set `APP_URL` to your domain.
+- Run `php artisan config:cache` and `php artisan route:cache` after configuring.
+- Ensure storage permissions for logs/cache if on Linux.
+- If using HTTPS/behind proxy, configure `TrustedProxies`/`APP_URL` accordingly.
 
-### Premium Partners
+### Testing / QA
+- There are no feature tests included; recommend adding auth + vacation flow tests.
+- Manual checks:
+  - `/auth/login` works for both roles.
+  - Admin tries `/employee` → 403; employee tries `/admin` → 403.
+  - Unknown route → custom 404; CSRF mismatch → custom 419.
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+---
 
-## Contributing
+## Español
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Descripción
+- Aplicación Laravel 12 con dos paneles Filament 5:
+  - **Admin** (`/admin`): gestiona departamentos, empleados y solicitudes de vacaciones.
+  - **Empleado** (`/employee`): cada empleado gestiona solo sus propias solicitudes.
+- Login único en `/auth/login` (también `/login`); redirección por rol:
+  - `role=admin` → `/admin`
+  - `role=employee` con `employee_id` → `/employee`
+- Páginas de error personalizadas (403, 404, 419, 500) con estilo consistente.
+- Solicitudes de vacaciones con validaciones de días restantes y estado pending/approved/rejected.
 
-## Code of Conduct
+### Requisitos
+- PHP 8.2+
+- Composer
+- Node.js y npm
+- Base de datos (MySQL/PostgreSQL/SQLite; configurar en `.env`)
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### Instalación
+```bash
+composer install
+cp .env.example .env   # configura la BD, APP_URL, etc.
+php artisan key:generate
+php artisan migrate
+npm install
+npm run build          # o npm run dev
+```
 
-## Security Vulnerabilities
+### Ejecución
+```bash
+php artisan serve
+# App en http://127.0.0.1:8000
+# Login en /auth/login (redirige según rol)
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Acceso a paneles
+- **Admin**: `/admin`
+- **Empleado**: `/employee`
+- Un solo login con la interfaz de Filament; el acceso a paneles sigue `User::canAccessPanel`.
 
-## License
+### Modelos y características
+- `User`: `name`, `email`, `password (hashed)`, `role`, `employee_id`; control de acceso por panel.
+- `Employee`: `full_name`, `email`, `department_id`, `hire_date`, `is_active`; crea/actualiza automáticamente el usuario vinculado y permite cambiar contraseña desde el formulario de empleado en el panel admin.
+- `VacationRequest`: `employee_id`, `start_date`, `end_date`, `status`, `reason`, `reviewed_by`, `reviewed_at`, `requested_days`, `year`.
+- Lógica de días restantes en `Employee::remainingVacationDays`.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### UX de solicitudes (panel empleado)
+- Solo ve sus solicitudes; edición/eliminación/cancelar solo si el estado es **pending**.
+- Placeholders muestran días restantes y solicitados en vivo.
+- Validaciones: fecha fin ≥ fecha inicio; días solicitados ≤ días disponibles.
+
+### Páginas de error
+- Vistas personalizadas 403/404/419/500 en `resources/views/errors`, con botón a `/auth/login` (vía `/`).
+
+### Notas de despliegue
+- Define `APP_URL` en producción.
+- Ejecuta `php artisan config:cache` y `route:cache`.
+- Ajusta permisos de `storage` según el servidor.
+- Configura proxy/HTTPS si aplica.
+
+### Pruebas recomendadas
+- No se incluyen tests automáticos; se aconseja añadir pruebas de login y flujo de vacaciones.
+- Verificación manual:
+  - `/auth/login` funciona para ambos roles.
+  - Admin en `/employee` → 403; empleado en `/admin` → 403.
+  - Ruta inexistente → 404 personalizada; error CSRF → 419 personalizada.
+
+---
