@@ -61,12 +61,17 @@ php artisan serve
 - Ensure storage permissions for logs/cache if on Linux.
 - If using HTTPS/behind proxy, configure `TrustedProxies`/`APP_URL` accordingly.
 
-### Testing / QA
-- There are no feature tests included; recommend adding auth + vacation flow tests.
-- Manual checks:
-  - `/auth/login` works for both roles.
-  - Admin tries `/employee` → 403; employee tries `/admin` → 403.
-  - Unknown route → custom 404; CSRF mismatch → custom 419.
+### Departaments
+![Departaments ](screenshots/departments.png)
+
+### Empleados
+![Employees ](screenshots/employees.png)
+![Employees ](screenshots/employee_edit.png)
+![Employees ](screenshots/employee_request.png)
+
+### Solicitudes de vacaciones
+![Vacations ](screenshots/vacations.png)
+
 
 ---
 
@@ -130,11 +135,18 @@ php artisan serve
 - Ajusta permisos de `storage` según el servidor.
 - Configura proxy/HTTPS si aplica.
 
-### Pruebas recomendadas
-- No se incluyen tests automáticos; se aconseja añadir pruebas de login y flujo de vacaciones.
-- Verificación manual:
-  - `/auth/login` funciona para ambos roles.
-  - Admin en `/employee` → 403; empleado en `/admin` → 403.
-  - Ruta inexistente → 404 personalizada; error CSRF → 419 personalizada.
+## Capturas de pantalla
+Las capturas están en `screenshots/` (raíz del proyecto).
+
+### Departamentos
+![Departamentos - vista 1](screenshots/departments.png)
+
+### Empleados
+![Empleados - vista 1](screenshots/employees.png)
+![Empleados - vista 2](screenshots/employee_edit.png)
+![Empleados - vista 2](screenshots/employee_request.png)
+
+### Solicitudes de vacaciones
+![Vacaciones - vista 1](screenshots/vacations.png)
 
 ---
